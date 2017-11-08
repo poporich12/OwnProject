@@ -12,6 +12,7 @@ namespace Game1
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         Texture2D background;
+        Ship ship;
 
         public Game1()
         {
@@ -28,7 +29,8 @@ namespace Game1
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-
+            IsMouseVisible = true;
+            ship = new Ship(Content);
             base.Initialize();
         }
 
@@ -41,6 +43,7 @@ namespace Game1
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
             background = Content.Load<Texture2D>("background");
+           
 
             // TODO: use this.Content to load your game content here
         }
@@ -65,7 +68,7 @@ namespace Game1
                 Exit();
 
             // TODO: Add your update logic here
-
+            ship.Move();
             base.Update(gameTime);
         }
 
@@ -78,6 +81,7 @@ namespace Game1
             GraphicsDevice.Clear(Color.CornflowerBlue);
             spriteBatch.Begin();
             spriteBatch.Draw(background, Vector2.Zero, Color.White);
+            ship.Draw(spriteBatch);
             spriteBatch.End();
             // TODO: Add your drawing code here
 
