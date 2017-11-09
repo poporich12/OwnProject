@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-
+//llll
 namespace Game1
 {
     /// <summary>
@@ -13,7 +13,9 @@ namespace Game1
         SpriteBatch spriteBatch;
         Texture2D background;
         Ship ship;
+        /// <summary>
 
+        /// </summary>
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
