@@ -29,7 +29,7 @@ namespace Game1
 
         public void Update(GraphicsDevice graphics)
         {
-            /*position += velocity;
+            position += velocity;
 
             if (position.X <= 0 || position.X >= graphics.Viewport.Height - texture.Height)
             {
@@ -47,7 +47,7 @@ namespace Game1
             if (position.Y < 0 - texture.Width)
             {
                 isVisible = false;
-            }*/
+            }
         }
         public void Draw(SpriteBatch spriteBatch)
         {

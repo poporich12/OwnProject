@@ -20,13 +20,23 @@ namespace Game1
         List<Enemies> enemies = new List<Enemies>();
         Ship ship;
         float spawn = 0;
-
+        enum GameState
+        {
+            ShDoomed,
+            MainMenu,
+            Option,
+            Playing,
+        }
+        GameState CurrentGameState = GameState.ShDoomed;
+        int screenWidth = 800, screenHight = 600;
 
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
         }
+        Button bgWellcome;
+        cButton btnPlay;
 
         /// <summary>
         /// Allows the game to perform any initialization it needs to before starting to run.
@@ -51,7 +61,15 @@ namespace Game1
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
             background = Content.Load<Texture2D>("background");
+            graphics.PreferredBackBufferWidth = screenWidth;
+            graphics.PreferredBackBufferHeight = screenHight;
+            graphics.ApplyChanges();
+            graphics.IsFullScreen = true;
+            IsMouseVisible = true;
 
+            bgWellcome = new Button();
+            btnPlay = new cButton(Content.Load<Texture2D>("Play"), graphics.GraphicsDevice);
+            btnPlay.setPosition(new Vector2(300, 200));
 
             // TODO: use this.Content to load your game content here
         }
@@ -72,17 +90,32 @@ namespace Game1
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
+            MouseState mouse = Mouse.GetState();
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
-            spawn += (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            foreach (Enemies enemy in enemies)
+            switch (CurrentGameState)
             {
-                enemy.Update(graphics.GraphicsDevice);
+                case GameState.ShDoomed:
+                    if (bgWellcome.IsClicked() == true) CurrentGameState = GameState.MainMenu;
+                    bgWellcome.Update(mouse);
+                    break;
+                case GameState.MainMenu:
+                    if (btnPlay.IsClicked() == true) CurrentGameState = GameState.Playing;
+                    btnPlay.Update(mouse);
+                    break;
+                case GameState.Playing:
+                    spawn += (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+                    foreach (Enemies enemy in enemies)
+                    {
+                        enemy.Update(graphics.GraphicsDevice);
+                    }
+                    LoadEnemies();
+                    ship.Move();
+                    break;
             }
-            LoadEnemies();
-            // TODO: Add your update logic here
-            ship.Move();
+           
             base.Update(gameTime);
         }
 
@@ -122,12 +155,25 @@ namespace Game1
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
             spriteBatch.Begin();
-            spriteBatch.Draw(background, Vector2.Zero, Color.White);
-            ship.Draw(spriteBatch);
-            foreach (Enemies enemy in enemies)
+         //   spriteBatch.Draw(background, Vector2.Zero, Color.White);
+            switch (CurrentGameState)
             {
-                enemy.Draw(spriteBatch);
-            }
+                case GameState.ShDoomed:
+                    spriteBatch.Draw(Content.Load<Texture2D>("wellcome"), new Rectangle(0, 0, screenWidth, screenHight), Color.White);
+                    break;
+                case GameState.MainMenu:
+                    spriteBatch.Draw(Content.Load<Texture2D>("Background"), new Rectangle(0, 0, screenWidth, screenHight), Color.White);
+                    btnPlay.Draw(spriteBatch);
+                    break;
+                case GameState.Playing:
+                    spriteBatch.Draw(background, Vector2.Zero, Color.White);
+                    ship.Draw(spriteBatch);
+                            foreach (Enemies enemy in enemies)
+                            {
+                                enemy.Draw(spriteBatch);
+                            }
+                    break;
+            } 
             spriteBatch.End();
             // TODO: Add your drawing code here
 
