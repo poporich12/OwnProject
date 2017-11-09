@@ -43,6 +43,8 @@ namespace Game1
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
             background = Content.Load<Texture2D>("background");
+            graphics.PreferredBackBufferWidth = 800;
+            graphics.PreferredBackBufferHeight = 600;
            
 
             // TODO: use this.Content to load your game content here
@@ -68,7 +70,7 @@ namespace Game1
                 Exit();
 
             // TODO: Add your update logic here
-            ship.Move();
+            ship.Move(Content);
             base.Update(gameTime);
         }
 

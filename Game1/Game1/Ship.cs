@@ -27,7 +27,7 @@ namespace Game1
         }
         public Vector2 MousePosition() => new Vector2(mouseState.X, mouseState.Y);
 
-        public void Move()
+        public void Move(ContentManager content)
         {
             lastMouseState = mouseState;
             mouseState = Mouse.GetState();
@@ -37,43 +37,51 @@ namespace Game1
             {
                 position.X -= 5;
                 position.Y -= 5;
+                ship = content.Load<Texture2D>("player09");
 
             }
             else if (keyState.IsKeyDown(Keys.A) && keyState.IsKeyDown(Keys.S))
             {
                 position.X -= 5;
                 position.Y += 5;
+                ship = content.Load<Texture2D>("player07");
 
             }
             else if (keyState.IsKeyDown(Keys.D) && keyState.IsKeyDown(Keys.S))
             {
                 position.X += 5;
                 position.Y += 5;
+                ship = content.Load<Texture2D>("player06");
 
             }
             else if (keyState.IsKeyDown(Keys.D) && keyState.IsKeyDown(Keys.W))
             {
                 position.X += 5;
                 position.Y -= 5;
+                ship = content.Load<Texture2D>("player05");
 
             }
             else if (keyState.IsKeyDown(Keys.A))
             {
                 position.X -= 10;
+                ship = content.Load<Texture2D>("player04");
 
             }
             else if (keyState.IsKeyDown(Keys.D))
             {
                 position.X += 10;
+                ship = content.Load<Texture2D>("player02");
 
             }
             else if (keyState.IsKeyDown(Keys.W))
             {
                 position.Y -= 10;
+                ship = content.Load<Texture2D>("player");
             }
             else if (keyState.IsKeyDown(Keys.S))
             {
                 position.Y += 10;
+                ship = content.Load<Texture2D>("player03");
             }
 
 
