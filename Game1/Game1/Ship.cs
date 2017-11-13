@@ -15,19 +15,23 @@ namespace Game1
     {
         private Vector2 position;
         private Texture2D ship;
-        private bool shoot = false;
+        private bool Isshoot = false;
         private KeyboardState keyState;
         private MouseState mouseState, lastMouseState;
+        List<Bullet> BulletList = new List<Bullet>();
+        ContentManager content;
+        float spawn = 0;
 
         public Ship(ContentManager content)
         {
 
             ship = content.Load<Texture2D>("player");
+            this.content = content;
 
         }
-        public Vector2 MousePosition() => new Vector2(mouseState.X, mouseState.Y);
+        //public Vector2 MousePosition() => new Vector2(mouseState.X, mouseState.Y);
 
-        public void Move(ContentManager content)
+        public void Move(GameTime gametime)
         {
             lastMouseState = mouseState;
             mouseState = Mouse.GetState();
@@ -84,22 +88,52 @@ namespace Game1
                 ship = content.Load<Texture2D>("player03");
             }
 
-
+            turn();
+            spawn += (float)gametime.ElapsedGameTime.TotalSeconds;
 
             if (mouseState.LeftButton == ButtonState.Pressed)
             {
-                shoot = true;
+                Isshoot = true;
+                if (spawn > 0.15)
+                {
+                    spawn = 0;
+                    BulletList.Add(new Bullet(content, position));
+                }
             }
-            if (shoot)
-            {
 
+            if (Isshoot)
+                foreach (Bullet bullet in BulletList)
+                    bullet.Move();
+            for (int i = 0; i < BulletList.Count; i++)
+            {
+                Bullet bullet = BulletList[i];
+                if (bullet.IsEnd())
+                {
+                    BulletList.Remove(bullet);
+                    i--;
+                }
             }
+
+
 
         }
 
-        public void Draw(SpriteBatch spriteBatch)
+        public void turn()
+        {
+            if (position.X > 750) position.X -= 10;
+            if (position.X < -10) position.X += 10;
+            if (position.Y < -10) position.Y += 10;
+            if (position.Y > 550) position.Y -= 10;
+        }
+
+        public void Draw(SpriteBatch spriteBatch, ContentManager content)
         {
             spriteBatch.Draw(ship, position);
+            if (Isshoot)
+                foreach (Bullet bullet in BulletList)
+                    bullet.Draw(spriteBatch);
         }
+
+
     }
 }
