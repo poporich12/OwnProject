@@ -5,7 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-//
+
+
 namespace Game1
 {
     /// <summary>
@@ -118,7 +119,7 @@ namespace Game1
                             enemy.Update(graphics.GraphicsDevice);
                         }
                         LoadEnemies();
-                        ship.Move();
+                        ship.Move(gameTime);
                         break;
                 }
             base.Update(gameTime);
