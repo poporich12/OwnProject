@@ -7,7 +7,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-
 namespace Game1
 {
     class cButton : Button
@@ -22,12 +21,10 @@ namespace Game1
         {
             texture = newTexture;
             //ScreenW = 800,ScreenH =600
-            //Imgw     =100,Imgh =20
-            size = new Vector2(graphics.Viewport.Width / 8, graphics.Viewport.Height / 30);
+            // Imgw     =100,Imgh =2
+           size = new Vector2(graphics.Viewport.Width/8, graphics.Viewport.Height/8);
         }
-
         bool down;
-
         public void Update(MouseState mouse)
         {
             rectangle = new Rectangle((int)position.X, (int)position.Y,
@@ -52,7 +49,7 @@ namespace Game1
 
         public void Draw(SpriteBatch spriteBactch)
         {
-            spriteBactch.Draw(texture, rectangle, Color.White);
+            spriteBactch.Draw(texture,rectangle,Color.Black);
         }
 
         public void setPosition(Vector2 newPosotion)
@@ -60,7 +57,6 @@ namespace Game1
             position = newPosotion;
 
         }
-
 
     }
 }

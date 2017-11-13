@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Content;
 
 
+
 namespace Game1
 {
     public class Ship
@@ -75,8 +76,6 @@ namespace Game1
             {
                 position.Y += 10;
             }
-
-
 
             if (mouseState.LeftButton == ButtonState.Pressed)
             {
