@@ -72,8 +72,8 @@ namespace Game1
                  btnPlay = new cButton(Content.Load<Texture2D>("Play2"), graphics.GraphicsDevice);
                  btnMenu = new cButton(Content.Load<Texture2D>("Menu"), graphics.GraphicsDevice);
 
-          //       btnMenu.setPosition(new Vector2(320,140));
-                 btnPlay.setPosition(new Vector2(320,140));
+                 btnMenu.setPosition(new Vector2(350,140));
+                 btnPlay.setPosition(new Vector2(350,240));
 
             // TODO: use this.Content to load your game content here
         }
@@ -106,6 +106,7 @@ namespace Game1
                         break;
                     case GameState.MainMenu:
                         if (btnPlay.IsClicked() == true) CurrentGameState = GameState.Playing;
+                        btnMenu.Update(mouse);
                         btnPlay.Update(mouse);
                         
                         break;
@@ -167,11 +168,11 @@ namespace Game1
                                    break;
                                case GameState.MainMenu:
                                    spriteBatch.Draw(Content.Load<Texture2D>("Background"), new Rectangle(0, 0, screenWidth, screenHight), Color.White);
-                                   //    btnMenu.Draw(spriteBatch);
+                                       btnMenu.Draw(spriteBatch);
                                        btnPlay.Draw(spriteBatch);  
                                    break;
                                case GameState.Playing:
-                                   spriteBatch.Draw(background, Vector2.Zero, Color.White);
+                                   spriteBatch.Draw(background, Vector2.Zero, Color.White);                                   
                                    ship.Draw(spriteBatch);
                                            foreach (Enemies enemy in enemies)
                                            {
