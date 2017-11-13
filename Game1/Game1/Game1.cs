@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
+//
 namespace Game1
 {
     /// <summary>
@@ -28,8 +28,8 @@ namespace Game1
             Playing,
         }
         GameState CurrentGameState = GameState.ShDoomed;
-        int screenWidth = 800, screenHight=600;
 
+        int screenWidth = 800, screenHight=600;
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
