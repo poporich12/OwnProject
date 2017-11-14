@@ -116,7 +116,7 @@ namespace Game1
 
                         foreach (Enemies enemy in enemies)
                         {
-                            enemy.Update(graphics.GraphicsDevice);
+                            enemy.Update(graphics.GraphicsDevice,ship.realPosition());
                         }
                         LoadEnemies();
                         ship.Move(gameTime);
@@ -127,14 +127,14 @@ namespace Game1
 
            public void LoadEnemies()
             {
-                int randY1 = random.Next(1, 1000);
-                int randX1 = random.Next(1, 1000);
-                int randY2 = random.Next(1, 1000);
-                int randX2 = random.Next(1, 1000);
-                int randY3 = random.Next(1, 1000);
-                int randX3 = random.Next(1, 1000);
-                int randY4 = random.Next(1, 1000);
-                int randX4 = random.Next(1, 1000);
+                int randY1 = random.Next(10, 400);
+                int randX1 = random.Next(10, 700);
+                int randY2 = random.Next(10, 400);
+                int randX2 = random.Next(10, 700);
+                int randY3 = random.Next(10, 400);
+                int randX3 = random.Next(10, 700);
+                int randY4 = random.Next(10, 400);
+                int randX4 = random.Next(10, 700);
                 if (spawn > 1)
                 {
                     spawn = 0;
@@ -144,15 +144,9 @@ namespace Game1
                     enemies.Add(new Enemies(Content.Load<Texture2D>("3"), new Vector2(randX3, randY3)));
                     enemies.Add(new Enemies(Content.Load<Texture2D>("4"), new Vector2(randX4, randY4)));
                 }
-                for (int i = 0; i < enemies.Count; i++)
-                 {
-                     if (!enemies[i].isVisible)
-                     {
-                         enemies.RemoveAt(i);
-                         i--;
-                     }
+               
 
-            }
+            
     }
         /// <summary>
         /// This is called when the game should draw itself.

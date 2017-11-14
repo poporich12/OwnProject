@@ -134,6 +134,11 @@ namespace Game1
                     bullet.Draw(spriteBatch);
         }
 
+        public Vector2 realPosition()
+        {
+            return position;
+        }
+
 
     }
 }
