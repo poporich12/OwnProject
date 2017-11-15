@@ -20,7 +20,7 @@ namespace Game1
     /// <summary>
     /// This is the main type for your game.
     /// </summary>
-    public class NeonShooterGame :Game
+    public class NeonShooterGame : Game
     {
         public static NeonShooterGame Instance { get; private set; }
         public static GameTime GameTime { get; private set; }
@@ -44,6 +44,7 @@ namespace Game1
             MainMenu,
             Option,
             Playing,
+            GameOver
         }
         GameState CurrentGameState = GameState.ShDoomed;
 
@@ -63,7 +64,7 @@ namespace Game1
         }
 
         Button bgWellcome;
-        cButton btnPlay,btnMenu;
+        cButton btnPlay, btnMenu;
 
         /// <summary>
         /// Allows the game to perform any initialization it needs to before starting to run.
@@ -86,20 +87,20 @@ namespace Game1
         protected override void LoadContent()
         {
             // Create a new SpriteBatch, which can be used to draw textures.
-           
-                 spriteBatch = new SpriteBatch(GraphicsDevice);
-                 background = Content.Load<Texture2D>("background");
-                 
-                 graphics.ApplyChanges();
-                 graphics.IsFullScreen = true;
-                 IsMouseVisible = true;
 
-                 bgWellcome = new Button();
-                 btnPlay = new cButton(Content.Load<Texture2D>("Play2"), graphics.GraphicsDevice);
-                 btnMenu = new cButton(Content.Load<Texture2D>("Menu"), graphics.GraphicsDevice);
+            spriteBatch = new SpriteBatch(GraphicsDevice);
+            background = Content.Load<Texture2D>("background");
 
-                 btnMenu.setPosition(new Vector2(350,140));
-                 btnPlay.setPosition(new Vector2(350,240));
+            graphics.ApplyChanges();
+            graphics.IsFullScreen = true;
+            IsMouseVisible = true;
+
+            bgWellcome = new Button();
+            btnPlay = new cButton(Content.Load<Texture2D>("Play2"), graphics.GraphicsDevice);
+            btnMenu = new cButton(Content.Load<Texture2D>("Menu"), graphics.GraphicsDevice);
+
+            btnMenu.setPosition(new Vector2(350, 140));
+            btnPlay.setPosition(new Vector2(350, 240));
 
             // TODO: use this.Content to load your game content here
         }
@@ -110,8 +111,8 @@ namespace Game1
         /// </summary>
         protected override void UnloadContent()
         {
-          
-         
+
+
         }
 
         /// <summary>
@@ -121,93 +122,133 @@ namespace Game1
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
+            /*foreach (Enemies enemy in enemies)
+            {
+                enemy.Update(graphics.GraphicsDevice, ship.realPosition());
+                if (ship.rectanglebox().Intersects(enemy.enemyBox))
+                {
+                    CurrentGameState = GameState.GameOver;
+                }
+            }*/
+
             MouseState mouse = Mouse.GetState();
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
-                switch (CurrentGameState)
-                {
-                    case GameState.ShDoomed:
-                        if (bgWellcome.IsClicked() == true) CurrentGameState = GameState.MainMenu;
-                        bgWellcome.Update(mouse);
-                        break;
-                    case GameState.MainMenu:
-                        if (btnPlay.IsClicked() == true) CurrentGameState = GameState.Playing;
-                        btnMenu.Update(mouse);
-                        btnPlay.Update(mouse);
-                        
-                        break;
-                    case GameState.Playing:
-                        spawn += (float)gameTime.ElapsedGameTime.TotalSeconds;
+            switch (CurrentGameState)
+            {
+                case GameState.ShDoomed:
+                    if (bgWellcome.IsClicked() == true) CurrentGameState = GameState.MainMenu;
+                    bgWellcome.Update(mouse);
+                    break;
+                case GameState.MainMenu:
+                    if (btnPlay.IsClicked() == true) CurrentGameState = GameState.Playing;
+                    btnMenu.Update(mouse);
+                    btnPlay.Update(mouse);
 
-                        foreach (Enemies enemy in enemies)
+                    break;
+                case GameState.Playing:
+                    spawn += (float)gameTime.ElapsedGameTime.TotalSeconds;
+                    ship.Move(gameTime);
+                    for (int i = 0; i < enemies.Count; i++)
+                    {
+                        Enemies enemy = enemies[i];
+                        if (ship.KillEnemy(enemy))
                         {
-                            enemy.Update(graphics.GraphicsDevice,ship.realPosition());
+                            enemies.Remove(enemy);
+                            i--;
                         }
-                        LoadEnemies();
-                        ship.Move(gameTime);
+                    }
+
+                    foreach (Enemies enemy in enemies)
+                    {
+                        enemy.Update(graphics.GraphicsDevice, ship.realPosition());
+                        if (ship.rectanglebox().Intersects(enemy.enemyBox))
+                        {
+                            CurrentGameState = GameState.GameOver;
+                        }
+                    }
+                    LoadEnemies();
                     if (Input.WasKeyPressed(Keys.P))
                         paused = !paused;
                     if (Input.WasKeyPressed(Keys.B))
                         useBloom = !useBloom;
-
-
                     break;
-                }
+                case GameState.GameOver:
+                    break;
+
+            }
             base.Update(gameTime);
         }
 
-           public void LoadEnemies()
+        public void LoadEnemies()
+        {
+
+            int randY1 = random.Next(10, 400);
+            int randX1 = random.Next(10, 700);
+            int randY2 = random.Next(10, 400);
+            int randX2 = random.Next(10, 700);
+            int randY3 = random.Next(10, 400);
+            int randX3 = random.Next(10, 700);
+            int randY4 = random.Next(10, 400);
+            int randX4 = random.Next(10, 700);
+            if (spawn > 1)
             {
-                int randY1 = random.Next(10, 400);
-                int randX1 = random.Next(10, 700);
-                int randY2 = random.Next(10, 400);
-                int randX2 = random.Next(10, 700);
-                int randY3 = random.Next(10, 400);
-                int randX3 = random.Next(10, 700);
-                int randY4 = random.Next(10, 400);
-                int randX4 = random.Next(10, 700);
-                if (spawn > 1)
+                spawn = 0;
+                if (enemies.Count() < 200)
                 {
-                    spawn = 0;
-                    if (enemies.Count() < 10)
-                        enemies.Add(new Enemies(Content.Load<Texture2D>("1"), new Vector2(randX1, randY1)));
+
+                    enemies.Add(new Enemies(Content.Load<Texture2D>("1"), new Vector2(randX1, randY1)));
+                }
+                if (enemies.Count() > 8)
+                {
+
                     enemies.Add(new Enemies(Content.Load<Texture2D>("2"), new Vector2(randX2, randY2)));
+                }
+                if (enemies.Count() > 20)
+                {
+
                     enemies.Add(new Enemies(Content.Load<Texture2D>("3"), new Vector2(randX3, randY3)));
+                }
+                if (enemies.Count() > 30)
+                {
+
                     enemies.Add(new Enemies(Content.Load<Texture2D>("4"), new Vector2(randX4, randY4)));
                 }
-    }
-        
+            }
+        }
+
         /// <summary>
         /// This is called when the game should draw itself.
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            
+
             spriteBatch.Begin();
-               spriteBatch.Draw(background, Vector2.Zero, Color.White);
-                     switch (CurrentGameState)
-                           {
-                               case GameState.ShDoomed:
-                                   spriteBatch.Draw(Content.Load<Texture2D>("iconeshoot"), new Rectangle(0, 0,800,600 ), Color.White);
-                                   break;
-                               case GameState.MainMenu:
-                                   spriteBatch.Draw(Content.Load<Texture2D>("Background"), new Rectangle(0, 0, 800,600), Color.White);
-                                       btnMenu.Draw(spriteBatch);
-                                       btnPlay.Draw(spriteBatch);  
-                                   break;
-                               case GameState.Playing:
-                                   spriteBatch.Draw(background, Vector2.Zero, Color.White);                                   
-                                   ship.Draw(spriteBatch);
-                                           foreach (Enemies enemy in enemies)
-                                           {
-                                               enemy.Draw(spriteBatch);
-                                           }
-                    spriteBatch.DrawString(Content.Load<SpriteFont>("Font/Font"),"Lives: {PlayerStatus.Lives}",new Vector2(5), Color.White);
+            spriteBatch.Draw(background, Vector2.Zero, Color.White);
+            switch (CurrentGameState)
+            {
+                case GameState.ShDoomed:
+                    spriteBatch.Draw(Content.Load<Texture2D>("iconeshoot"), new Rectangle(0, 0, 800, 600), Color.White);
+                    break;
+                case GameState.MainMenu:
+                    spriteBatch.Draw(Content.Load<Texture2D>("Background"), new Rectangle(0, 0, 800, 600), Color.White);
+                    btnMenu.Draw(spriteBatch);
+                    btnPlay.Draw(spriteBatch);
+                    break;
+                case GameState.Playing:
+                    spriteBatch.Draw(background, Vector2.Zero, Color.White);
+                    ship.Draw(spriteBatch);
+                    foreach (Enemies enemy in enemies)
+                    {
+
+                        enemy.Draw(spriteBatch);
+                    }
+                    spriteBatch.DrawString(Content.Load<SpriteFont>("Font/Font"), "Lives: {PlayerStatus.Lives}", new Vector2(5), Color.White);
                     DrawRightAlignedString("Score: " + PlayerStatus.Score, 5);
-             //       DrawRightAlignedString("Multiplier: " + PlayerStatus.Multiplier, 35);
+                    //       DrawRightAlignedString("Multiplier: " + PlayerStatus.Multiplier, 35);
                     // draw the custom mouse cursor
-                //    spriteBatch.Draw(Content.Load<Texture2D>("Art/Pointer"), Input.MousePosition, Color.White);
+                    //    spriteBatch.Draw(Content.Load<Texture2D>("Art/Pointer"), Input.MousePosition, Color.White);
 
                     if (PlayerStatus.IsGameOver)
                     {
@@ -218,13 +259,12 @@ namespace Game1
                         Vector2 textSize = Art.Font.MeasureString(text);
                         spriteBatch.DrawString(Art.Font, text, ScreenSize / 2 - textSize / 2, Color.White);
                     }
-
-
-
-
                     break;
-                           } 
-           
+                case GameState.GameOver:
+                    spriteBatch.Draw(Content.Load<Texture2D>("Background"), new Rectangle(0, 0, 800, 600), Color.White);
+                    break;
+            }
+
             spriteBatch.End();
             base.Draw(gameTime);
         }
