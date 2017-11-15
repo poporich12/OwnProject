@@ -16,6 +16,7 @@ namespace Game1
         private MouseState mouseState, lastMouseState;
         SpriteBatch spriteBatch;
         ContentManager content;
+        Rectangle rectangleBox;
 
         public Bullet(ContentManager content, Vector2 ShipPosition)
         {
@@ -34,8 +35,13 @@ namespace Game1
         {
             position.X += speed.X;
             position.Y += speed.Y;
+            rectangleBox = new Rectangle((int)position.X, (int)position.Y, bullet.Width / 5, bullet.Height / 5);
         }
+        public Rectangle rectanglebox()
+        {
 
+            return rectangleBox;
+        }
         public void Draw(SpriteBatch spriteBatch)
         {
             spriteBatch.Draw(bullet, position);

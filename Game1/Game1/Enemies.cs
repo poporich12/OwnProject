@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 
-namespace Game1 
+namespace Game1
 {
     class Enemies
     {
@@ -13,7 +13,9 @@ namespace Game1
         public Vector2 position;
         public Vector2 velocity;
         public Vector2 direction;
-       
+        public Rectangle enemyBox;
+
+
 
 
         Random random = new Random();
@@ -27,12 +29,14 @@ namespace Game1
             randX = random.Next(-4, 4);
             randY = random.Next(-4, -1);
             velocity = new Vector2(randX, randY);
+            //enemyBox = new Rectangle((int)position.X, (int)position.Y, texture.Width, texture.Height);
         }
 
 
 
         public void Update(GraphicsDevice graphics, Vector2 ShipPosition)
         {
+
             if (ShipPosition.X > position.X)
             {
                 position.X++;
@@ -50,7 +54,9 @@ namespace Game1
                 position.Y--;
             }
 
+            enemyBox = new Rectangle((int)position.X, (int)position.Y, texture.Width / 2, texture.Height / 2);
         }
+
 
 
         public void Draw(SpriteBatch spriteBatch)

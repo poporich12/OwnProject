@@ -11,7 +11,7 @@ using Microsoft.Xna.Framework.Content;
 
 namespace Game1
 {
-     class Ship:Entity
+    class Ship : Entity
     {
         private Vector2 position;
         private Texture2D ship;
@@ -20,12 +20,13 @@ namespace Game1
         private MouseState mouseState, lastMouseState;
         List<Bullet> BulletList = new List<Bullet>();
         ContentManager content;
+        Rectangle rectangleBox;
         float spawn = 0;
 
         private Ship()
         {
             image = Art.Player;
-           // Position = NeonShooterGame.ScreenSize/ 2;
+            // Position = NeonShooterGame.ScreenSize/ 2;
             Radius = 10;
         }
 
@@ -119,6 +120,7 @@ namespace Game1
                 {
                     spawn = 0;
                     BulletList.Add(new Bullet(content, position));
+
                 }
             }
 
@@ -134,6 +136,7 @@ namespace Game1
                     i--;
                 }
             }
+            rectangleBox = new Rectangle((int)position.X, (int)position.Y, ship.Width / 5, ship.Height / 5);
 
 
 
@@ -155,6 +158,20 @@ namespace Game1
                     bullet.Draw(spriteBatch);
         }
 
+        public bool KillEnemy(Enemies enemy)
+        {
+            for (int i = 0; i < BulletList.Count; i++)
+            {
+                Bullet bullet = BulletList[i];
+                if (bullet.rectanglebox().Intersects(enemy.enemyBox))
+                {
+                    BulletList.Remove(bullet);
+                    i--;
+                    return true;
+                }
+            }
+            return false;
+        }
         public Vector2 realPosition()
         {
             return position;
@@ -163,12 +180,17 @@ namespace Game1
         public override void Update()
         {
 
+        }
 
+        public Rectangle rectanglebox()
+        {
 
-            
+            return rectangleBox;
         }
 
         int framesUntilRespawn = 0;
+        internal object sprite;
+
         public bool IsDead { get { return framesUntilRespawn > 0; } }
     }
 }
