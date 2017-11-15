@@ -5,6 +5,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System;
+using System.IO;
+using Microsoft.Xna.Framework.Media;
+using Microsoft.Xna.Framework.Input.Touch;
+
+
+
+
 
 
 namespace Game1
@@ -12,8 +20,12 @@ namespace Game1
     /// <summary>
     /// This is the main type for your game.
     /// </summary>
-    public class Game1 : Game
+    public class NeonShooterGame :Game
     {
+        public static NeonShooterGame Instance { get; private set; }
+        public static GameTime GameTime { get; private set; }
+        public static Viewport Viewport { get { return Instance.GraphicsDevice.Viewport; } }
+        public static Vector2 ScreenSize { get { return new Vector2(Viewport.Width, Viewport.Height); } }
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         Texture2D background;
@@ -21,6 +33,11 @@ namespace Game1
         List<Enemies> enemies = new List<Enemies>();
         Ship ship;
         float spawn = 0;
+
+        bool paused = false;
+        bool useBloom = false;
+
+
         enum GameState
         {
             ShDoomed,
@@ -30,12 +47,21 @@ namespace Game1
         }
         GameState CurrentGameState = GameState.ShDoomed;
 
-        int screenWidth = 800, screenHight=600;
-        public Game1()
+
+        public NeonShooterGame()
         {
+            Instance = this;
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+            graphics.PreferredBackBufferWidth = 800;
+            graphics.PreferredBackBufferHeight = 600;
+
+            //   bloom = new BloomComponent(this);
+            //   Components.Add(bloom);
+            //  bloom.Settings = new BloomSettings(null, 0.25f, 4, 2, 1, 1.5f, 1);
+
         }
+
         Button bgWellcome;
         cButton btnPlay,btnMenu;
 
@@ -61,10 +87,9 @@ namespace Game1
         {
             // Create a new SpriteBatch, which can be used to draw textures.
            
-            spriteBatch = new SpriteBatch(GraphicsDevice);
+                 spriteBatch = new SpriteBatch(GraphicsDevice);
                  background = Content.Load<Texture2D>("background");
-                 graphics.PreferredBackBufferWidth = screenWidth;
-                 graphics.PreferredBackBufferHeight = screenHight;
+                 
                  graphics.ApplyChanges();
                  graphics.IsFullScreen = true;
                  IsMouseVisible = true;
@@ -120,7 +145,13 @@ namespace Game1
                         }
                         LoadEnemies();
                         ship.Move(gameTime);
-                        break;
+                    if (Input.WasKeyPressed(Keys.P))
+                        paused = !paused;
+                    if (Input.WasKeyPressed(Keys.B))
+                        useBloom = !useBloom;
+
+
+                    break;
                 }
             base.Update(gameTime);
         }
@@ -144,25 +175,24 @@ namespace Game1
                     enemies.Add(new Enemies(Content.Load<Texture2D>("3"), new Vector2(randX3, randY3)));
                     enemies.Add(new Enemies(Content.Load<Texture2D>("4"), new Vector2(randX4, randY4)));
                 }
-               
-
-            
     }
+        
         /// <summary>
         /// This is called when the game should draw itself.
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
+            
             spriteBatch.Begin();
                spriteBatch.Draw(background, Vector2.Zero, Color.White);
                      switch (CurrentGameState)
                            {
                                case GameState.ShDoomed:
-                                   spriteBatch.Draw(Content.Load<Texture2D>("iconeshoot"), new Rectangle(0, 0, screenWidth, screenHight), Color.White);
+                                   spriteBatch.Draw(Content.Load<Texture2D>("iconeshoot"), new Rectangle(0, 0,800,600 ), Color.White);
                                    break;
                                case GameState.MainMenu:
-                                   spriteBatch.Draw(Content.Load<Texture2D>("Background"), new Rectangle(0, 0, screenWidth, screenHight), Color.White);
+                                   spriteBatch.Draw(Content.Load<Texture2D>("Background"), new Rectangle(0, 0, 800,600), Color.White);
                                        btnMenu.Draw(spriteBatch);
                                        btnPlay.Draw(spriteBatch);  
                                    break;
@@ -173,11 +203,38 @@ namespace Game1
                                            {
                                                enemy.Draw(spriteBatch);
                                            }
-                                   break;
+                    spriteBatch.DrawString(Content.Load<SpriteFont>("Font/Font"),"Lives: {PlayerStatus.Lives}",new Vector2(5), Color.White);
+                    DrawRightAlignedString("Score: " + PlayerStatus.Score, 5);
+             //       DrawRightAlignedString("Multiplier: " + PlayerStatus.Multiplier, 35);
+                    // draw the custom mouse cursor
+                //    spriteBatch.Draw(Content.Load<Texture2D>("Art/Pointer"), Input.MousePosition, Color.White);
+
+                    if (PlayerStatus.IsGameOver)
+                    {
+                        string text = "Game Over\n" +
+                            "Your Score: " + PlayerStatus.Score + "\n" +
+                            "High Score: " + PlayerStatus.HighScore;
+
+                        Vector2 textSize = Art.Font.MeasureString(text);
+                        spriteBatch.DrawString(Art.Font, text, ScreenSize / 2 - textSize / 2, Color.White);
+                    }
+
+
+
+
+                    break;
                            } 
            
             spriteBatch.End();
             base.Draw(gameTime);
         }
+        private void DrawRightAlignedString(string text, float y)
+        {
+            var textWidth = Content.Load<SpriteFont>("Font/Font").MeasureString(text).X;
+            spriteBatch.DrawString(Content.Load<SpriteFont>("Font/Font"), text, new Vector2(ScreenSize.X - textWidth - 5, y), Color.White);
+        }
+
     }
+
+
 }

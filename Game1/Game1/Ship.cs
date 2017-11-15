@@ -11,7 +11,7 @@ using Microsoft.Xna.Framework.Content;
 
 namespace Game1
 {
-    public class Ship
+     class Ship:Entity
     {
         private Vector2 position;
         private Texture2D ship;
@@ -22,6 +22,14 @@ namespace Game1
         ContentManager content;
         float spawn = 0;
 
+        private Ship()
+        {
+            image = Art.Player;
+           // Position = NeonShooterGame.ScreenSize/ 2;
+            Radius = 10;
+        }
+
+
         public Ship(ContentManager content)
         {
 
@@ -30,6 +38,19 @@ namespace Game1
 
         }
         //public Vector2 MousePosition() => new Vector2(mouseState.X, mouseState.Y);
+
+        private static Ship instance;
+        public static Ship Instance
+        {
+            get
+            {
+                if (instance == null)
+                    instance = new Ship();
+
+                return instance;
+            }
+        }
+
 
         public void Move(GameTime gametime)
         {
@@ -139,6 +160,15 @@ namespace Game1
             return position;
         }
 
+        public override void Update()
+        {
 
+
+
+            
+        }
+
+        int framesUntilRespawn = 0;
+        public bool IsDead { get { return framesUntilRespawn > 0; } }
     }
 }
