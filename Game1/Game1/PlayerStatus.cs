@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System;
 using System.IO;
 
 namespace Game1
@@ -19,6 +18,7 @@ namespace Game1
         public static int HighScore { get; private set; }
         public static int Multiplier { get; private set; }
         public static bool IsGameOver { get { return Lives == 0; } }
+        public static char syslife='o';
 
         private static float multiplierTimeLeft;    // time until the current multiplier expires
         private static int scoreForExtraLife;       // score required to gain an extra life
@@ -46,15 +46,7 @@ namespace Game1
 
         public static void Update()
         {
-            if (Multiplier > 1)
-            {
-                // update the multiplier timer
-                if ((multiplierTimeLeft -= (float)NeonShooterGame.GameTime.ElapsedGameTime.TotalSeconds) <= 0)
-                {
-                    multiplierTimeLeft = multiplierExpiryTime;
-                    ResetMultiplier();
-                }
-            }
+
             
         }
 

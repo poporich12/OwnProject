@@ -16,15 +16,20 @@ namespace Game1
         private Vector2 position;
         private Texture2D ship;
         private bool Isshoot = false;
+        private bool Istouch = false;
         private KeyboardState keyState;
         private MouseState mouseState, lastMouseState;
         List<Bullet> BulletList = new List<Bullet>();
         ContentManager content;
         Rectangle rectangleBox;
+        PlayerStatus playerStatus=new PlayerStatus();
+        
         float spawn = 0;
 
         private Ship()
         {
+            
+
             image = Art.Player;
             // Position = NeonShooterGame.ScreenSize/ 2;
             Radius = 10;
@@ -36,7 +41,7 @@ namespace Game1
 
             ship = content.Load<Texture2D>("player");
             this.content = content;
-
+         //   playerStatus = new PlayerStatus();
         }
         //public Vector2 MousePosition() => new Vector2(mouseState.X, mouseState.Y);
 
@@ -52,6 +57,7 @@ namespace Game1
             }
         }
 
+        public bool touch() { return Istouch = true; }
 
         public void Move(GameTime gametime)
         {
@@ -159,16 +165,32 @@ namespace Game1
         }
 
         public bool KillEnemy(Enemies enemy)
-        {
+        {            
             for (int i = 0; i < BulletList.Count; i++)
             {
                 Bullet bullet = BulletList[i];
                 if (bullet.rectanglebox().Intersects(enemy.enemyBox))
+                {               
+                    BulletList.Remove(bullet);
+                    i--;
+                    return true;
+                }
+
+            }
+            return false;
+        }
+        public bool KillBoss(Boss boss)
+        {
+            for (int i = 0; i < BulletList.Count; i++)
+            {
+                Bullet bullet = BulletList[i];
+                if (bullet.rectanglebox().Intersects(boss.bossBox))
                 {
                     BulletList.Remove(bullet);
                     i--;
                     return true;
                 }
+
             }
             return false;
         }

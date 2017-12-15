@@ -5,14 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System;
 using System.IO;
 using Microsoft.Xna.Framework.Media;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Input.Touch;
-
-
-
-
 
 
 namespace Game1
@@ -20,9 +16,9 @@ namespace Game1
     /// <summary>
     /// This is the main type for your game.
     /// </summary>
-    public class NeonShooterGame : Game
+    public class Game1 : Game
     {
-        public static NeonShooterGame Instance { get; private set; }
+        public static Game1 Instance { get; private set; }
         public static GameTime GameTime { get; private set; }
         public static Viewport Viewport { get { return Instance.GraphicsDevice.Viewport; } }
         public static Vector2 ScreenSize { get { return new Vector2(Viewport.Width, Viewport.Height); } }
@@ -32,11 +28,14 @@ namespace Game1
         Random random = new Random();
         List<Enemies> enemies = new List<Enemies>();
         Ship ship;
+        List<Boss> boss = new List<Boss>();
         float spawn = 0;
+        int scoboss = 500;
 
         bool paused = false;
         bool useBloom = false;
-
+        Song song;
+        SoundEffect playerDead;
 
         enum GameState
         {
@@ -49,7 +48,7 @@ namespace Game1
         GameState CurrentGameState = GameState.ShDoomed;
 
 
-        public NeonShooterGame()
+        public Game1()
         {
             Instance = this;
             graphics = new GraphicsDeviceManager(this);
@@ -87,7 +86,9 @@ namespace Game1
         protected override void LoadContent()
         {
             // Create a new SpriteBatch, which can be used to draw textures.
-
+            song = Content.Load<Song>("Music/FormatFactoryBGmusic");
+            MediaPlayer.Play(song);
+            playerDead = Content.Load<SoundEffect>("Music/Explosion+3");
             spriteBatch = new SpriteBatch(GraphicsDevice);
             background = Content.Load<Texture2D>("background");
 
@@ -98,6 +99,7 @@ namespace Game1
             bgWellcome = new Button();
             btnPlay = new cButton(Content.Load<Texture2D>("Play2"), graphics.GraphicsDevice);
             btnMenu = new cButton(Content.Load<Texture2D>("Menu"), graphics.GraphicsDevice);
+           
 
             btnMenu.setPosition(new Vector2(350, 140));
             btnPlay.setPosition(new Vector2(350, 240));
@@ -144,7 +146,6 @@ namespace Game1
                     if (btnPlay.IsClicked() == true) CurrentGameState = GameState.Playing;
                     btnMenu.Update(mouse);
                     btnPlay.Update(mouse);
-
                     break;
                 case GameState.Playing:
                     spawn += (float)gameTime.ElapsedGameTime.TotalSeconds;
@@ -154,25 +155,101 @@ namespace Game1
                         Enemies enemy = enemies[i];
                         if (ship.KillEnemy(enemy))
                         {
-                            enemies.Remove(enemy);
+                            enemy.lifenemy--;
+                            if (enemy.lifenemy == 0)
+                            {
+                                enemies.Remove(enemy);
+                                if (enemy.level == 1)
+                                    PlayerStatus.AddPoints(5);
+                                else if (enemy.level == 2)
+                                    PlayerStatus.AddPoints(20);
+                                else if (enemy.level == 3)
+                                    PlayerStatus.AddPoints(30);
+                                else if (enemy.level == 4)
+                                    PlayerStatus.AddPoints(50);
+                            }
                             i--;
                         }
                     }
+                    for (int i = 0; i < boss.Count; i++)
+                    {
+                        Boss bos = boss[i];
+                        if (ship.KillBoss(bos))
+                        {
+                            bos.lifeboss--;
+                            if (bos.lifeboss == 0)
+                            {
+                                boss.Remove(bos);
+                                PlayerStatus.AddPoints(1000);
+                            }
+                            i--;
+                        }
+                    }
+                    foreach (Boss bos in boss)
+                    {
+                        bos.Update(graphics.GraphicsDevice, ship.realPosition());
+                    }
+
+
+
 
                     foreach (Enemies enemy in enemies)
                     {
                         enemy.Update(graphics.GraphicsDevice, ship.realPosition());
                         if (ship.rectanglebox().Intersects(enemy.enemyBox))
                         {
-                            CurrentGameState = GameState.GameOver;
+                            playerDead.Play();
+                            PlayerStatus.RemoveLife();
+                            for (int i = 0; i < enemies.Count; i++)
+                            {
+                                 
+                                    Enemies enemy1 = enemies[i];
+                            if (ship.rectanglebox().Intersects(enemy1.enemyBox))
+                                    enemies.Remove(enemy1);
+                                
+                            }
+                            if (PlayerStatus.IsGameOver)
+                                 CurrentGameState = GameState.GameOver;                                                          
+                            break;
+                        }
+
+                    }
+
+                   foreach (Boss bos in boss)
+                    {
+                        bos.Update(graphics.GraphicsDevice, ship.realPosition());
+                        if (ship.rectanglebox().Intersects(bos.bossBox))
+                        {
+                            playerDead.Play();
+                            PlayerStatus.RemoveLife();
+                            for (int i = 0; i < boss.Count; i++)
+                            {
+                                Boss bos1 = boss[i];
+                                boss.Remove(bos1);
+                            }
+
+                            if (PlayerStatus.IsGameOver)
+                                
+                                  CurrentGameState = GameState.GameOver;
+                                    
+                            int sec = 3;
+                            while (sec > 0)
+                            {
+                                sec--;
+                            }
+                            break;
+                            
+
                         }
                     }
-                    LoadEnemies();
-                    if (Input.WasKeyPressed(Keys.P))
-                        paused = !paused;
-                    if (Input.WasKeyPressed(Keys.B))
-                        useBloom = !useBloom;
-                    break;
+                        LoadEnemies();
+                        if (Input.WasKeyPressed(Keys.P))
+                            paused = !paused;
+                        if (Input.WasKeyPressed(Keys.B))
+                            useBloom = !useBloom;
+                        break;
+                    
+
                 case GameState.GameOver:
                     break;
 
@@ -191,28 +268,66 @@ namespace Game1
             int randX3 = random.Next(10, 700);
             int randY4 = random.Next(10, 400);
             int randX4 = random.Next(10, 700);
+            int randX5 = random.Next(10, 400);
+            int randY5 = random.Next(10, 700);
             if (spawn > 1)
             {
                 spawn = 0;
-                if (enemies.Count() < 200)
+                if (PlayerStatus.Score >= 0 )
                 {
-
-                    enemies.Add(new Enemies(Content.Load<Texture2D>("1"), new Vector2(randX1, randY1)));
+                    if(ship.Position.X != randX1 && ship.Position.Y != randY1) { 
+                        enemies.Add(new Enemies(Content.Load<Texture2D>("1"), new Vector2(randX1, randY1),1));
+                    }
+                    else
+                    {
+                        randX1 = randX1 + 200;
+                        randY1 = randY1 + 200;
+                    }
                 }
-                if (enemies.Count() > 8)
+                if (PlayerStatus.Score > 50 )
                 {
-
-                    enemies.Add(new Enemies(Content.Load<Texture2D>("2"), new Vector2(randX2, randY2)));
+                    if(ship.Position.X != randX2 && ship.Position.Y != randY2) { 
+                        enemies.Add(new Enemies(Content.Load<Texture2D>("2"), new Vector2(randX2, randY2),2));
+                    }
+                    else
+                    {
+                        randX2 = randX2 + 200;
+                        randY2 = randY2 + 200;
+                    }
                 }
-                if (enemies.Count() > 20)
+                if (PlayerStatus.Score > 100)
                 {
-
-                    enemies.Add(new Enemies(Content.Load<Texture2D>("3"), new Vector2(randX3, randY3)));
+                    if(ship.Position.X != randY3 && ship.Position.Y != randY3) { 
+                        enemies.Add(new Enemies(Content.Load<Texture2D>("3"), new Vector2(randX3, randY3),3));
+                    }
+                    else
+                    {
+                        randX3 = randX3 + 200;
+                        randY3 = randY3 + 200;
+                    }
                 }
-                if (enemies.Count() > 30)
+                if (PlayerStatus.Score > 200)
                 {
-
-                    enemies.Add(new Enemies(Content.Load<Texture2D>("4"), new Vector2(randX4, randY4)));
+                    if(ship.Position.X != randX4 && ship.Position.Y != randY4) { 
+                        enemies.Add(new Enemies(Content.Load<Texture2D>("4"), new Vector2(randX4, randY4),4));
+                    }
+                    else
+                    {
+                        randX4 = randX4 + 200;
+                        randY4 = randY4 + 200;
+                    }
+                }
+                if (PlayerStatus.Score > scoboss)
+                {
+                    scoboss = scoboss * 2;
+                    if (ship.Position.X != randX5 && ship.Position.Y != randY5) { 
+                        boss.Add(new Boss(Content.Load<Texture2D>("boss"), new Vector2(randX4, randY4)));
+                    }
+                    else
+                    {
+                        randX5 = randX5 + 200;
+                        randY5 = randY5 + 200;
+                    }
                 }
             }
         }
@@ -244,28 +359,36 @@ namespace Game1
 
                         enemy.Draw(spriteBatch);
                     }
-                    spriteBatch.DrawString(Content.Load<SpriteFont>("Font/Font"), "Lives: {PlayerStatus.Lives}", new Vector2(5), Color.White);
+                    foreach (Boss bos in boss)
+                    {
+
+                        bos.Draw(spriteBatch);
+                    }
+                    if (PlayerStatus.Lives == 4)
+                        spriteBatch.DrawString(Content.Load<SpriteFont>("Font/Font"), "o", new Vector2(60, 0), Color.White);
+                    if (PlayerStatus.Lives >= 3)
+                        spriteBatch.DrawString(Content.Load<SpriteFont>("Font/Font"), "o", new Vector2(40, 0), Color.White);
+                    if (PlayerStatus.Lives >= 2)
+                        spriteBatch.DrawString(Content.Load<SpriteFont>("Font/Font"), "o", new Vector2(20, 0), Color.White);
+                    if (PlayerStatus.Lives >= 1)
+                        spriteBatch.DrawString(Content.Load<SpriteFont>("Font/Font"), "o", new Vector2(0, 0), Color.White);
+
                     DrawRightAlignedString("Score: " + PlayerStatus.Score, 5);
                     //       DrawRightAlignedString("Multiplier: " + PlayerStatus.Multiplier, 35);
                     // draw the custom mouse cursor
                     //    spriteBatch.Draw(Content.Load<Texture2D>("Art/Pointer"), Input.MousePosition, Color.White);
 
-                    if (PlayerStatus.IsGameOver)
-                    {
-                        string text = "Game Over\n" +
-                            "Your Score: " + PlayerStatus.Score + "\n" +
-                            "High Score: " + PlayerStatus.HighScore;
-
-                        Vector2 textSize = Art.Font.MeasureString(text);
-                        spriteBatch.DrawString(Art.Font, text, ScreenSize / 2 - textSize / 2, Color.White);
-                    }
                     break;
                 case GameState.GameOver:
                     spriteBatch.Draw(Content.Load<Texture2D>("Background"), new Rectangle(0, 0, 800, 600), Color.White);
+                   var textWidth = Content.Load<SpriteFont>("Font/Font").MeasureString("Your score: " + PlayerStatus.Score).X;
+                    spriteBatch.DrawString(Content.Load<SpriteFont>("Font/Font"), "Your score: " + PlayerStatus.Score, new Vector2(300, 300), Color.White);
                     break;
             }
-
+        
             spriteBatch.End();
+         
+
             base.Draw(gameTime);
         }
         private void DrawRightAlignedString(string text, float y)

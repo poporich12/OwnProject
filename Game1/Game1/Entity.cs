@@ -16,7 +16,7 @@ namespace Game1
         // The tint of the image. This will also allow us to change the transparency.
         protected Color color = Color.White;
 
-        public Vector2 Position, Velocity;
+        public Vector2 Position;
         public float Orientation;
         public float Radius = 20;   // used for circular collision detection
         public bool IsExpired;      // true if the entity was destroyed and should be deleted.

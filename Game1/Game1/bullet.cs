@@ -7,20 +7,25 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Media;
+using Microsoft.Xna.Framework.Audio;
+
 namespace Game1
 {
     class Bullet
     {
         private Vector2 position, speed;
         private Texture2D bullet;
-        private MouseState mouseState, lastMouseState;
-        SpriteBatch spriteBatch;
+        private MouseState mouseState;
         ContentManager content;
         Rectangle rectangleBox;
+        SoundEffect playerShooting;
 
         public Bullet(ContentManager content, Vector2 ShipPosition)
         {
 
+            playerShooting = content.Load<SoundEffect>("Music/shoot");
+            playerShooting.Play();
             bullet = content.Load<Texture2D>("heal");
             mouseState = Mouse.GetState();
             position = ShipPosition;
